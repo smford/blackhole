@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="description" content="Authentic Schwarzschild Black Hole and Relativistic Infall Simulation using WebGL 2.0 and General Relativity Geodesics.">
+    <title>CHANDRA-X // Relativistic Black Hole Simulation</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='45' fill='black' stroke='%2358a6ff' stroke-width='4'/></svg>">
+</head>
+<body>
+    <!-- Fullscreen WebGL Canvas Container -->
+    <div id="canvas-container">
+        <canvas id="gl-canvas"></canvas>
+    </div>
+
+    <!-- Interstellar Telemetry HUD Overlay -->
+    <div id="hud-overlay">
+        <!-- Top Navigation Bar -->
+        <header class="hud-header">
+            <div class="mission-title">
+                <span class="badge">GR-GEODESIC</span>
+                <h1>Chandra-X // Schwarzschild Horizon</h1>
+            </div>
+            <div class="status-indicator interactive" id="status-container">
+                <div class="status-dot" id="status-dot"></div>
+                <span id="status-text">ORBITING [STABLE]</span>
+            </div>
+        </header>
+
+        <!-- Middle Telemetry -->
+        <div class="hud-middle">
+            <!-- Left Telemetry Panel: Relativistic Kinematics -->
+            <div class="telemetry-card">
+                <div class="card-title">
+                    <span>RELATIVISTIC KINEMATICS</span>
+                    <span>TEL-A</span>
+                </div>
+                <div class="metric-row">
+                    <span class="metric-label">RADIAL DISTANCE (r/rs):</span>
+                    <span class="metric-value highlight" id="val-dist">14.50 rs</span>
+                </div>
+                <div class="metric-row">
+                    <span class="metric-label">INFALL SPEED (v/c):</span>
+                    <span class="metric-value" id="val-vel">0.000 c</span>
+                </div>
+                <div class="metric-row">
+                    <span class="metric-label">LORENTZ FACTOR (γ):</span>
+                    <span class="metric-value" id="val-gamma">1.000</span>
+                </div>
+                <div class="metric-row">
+                    <span class="metric-label">GRAV REDSHIFT (z):</span>
+                    <span class="metric-value" id="val-redshift">+0.035</span>
+                </div>
+            </div>
+
+            <!-- Right Telemetry Panel: Spacetime Curvature -->
+            <div class="telemetry-card secondary">
+                <div class="card-title">
+                    <span>SPACETIME CURVATURE</span>
+                    <span>TEL-B</span>
+                </div>
+                <div class="metric-row">
+                    <span class="metric-label">PROPER TIME (τ):</span>
+                    <span class="metric-value" id="val-tau">0.00 s</span>
+                </div>
+                <div class="metric-row">
+                    <span class="metric-label">TIME DILATION (dτ/dt):</span>
+                    <span class="metric-value" id="val-dilation">0.965</span>
+                </div>
+                <div class="metric-row">
+                    <span class="metric-label">TIDAL STRAIN:</span>
+                    <span class="metric-value" id="val-tidal">0.024 g</span>
+                </div>
+                <div class="metric-row">
+                    <span class="metric-label">PERFORMANCE / DRS:</span>
+                    <span class="metric-value highlight" id="val-fps">60 FPS (100%)</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Interactive Infall Action Prompt -->
+        <div class="interactive-prompt interactive" id="interactive-prompt">
+            CLICK ANYWHERE TO INITIATE FREE-FALL PLUNGE
+        </div>
+
+        <!-- Bottom Controls Bar -->
+        <footer class="hud-bottom">
+            <div class="bottom-info">
+                <span>[DRAG] Orbit • [SCROLL] Zoom • [SPACE] Plunge/Reset • [H] HUD</span>
+            </div>
+            <div class="hud-actions interactive">
+                <button class="btn-telemetry" id="btn-audio" title="Toggle Procedural Audio (M)">
+                    <span id="audio-icon">🔇</span>
+                    <span id="audio-text">SOUND: OFF</span>
+                </button>
+                <button class="btn-telemetry danger" id="btn-reset" title="Eject to Safe Orbit">
+                    <span>↺</span>
+                    <span>RESET ORBIT</span>
+                </button>
+                <button class="btn-telemetry" id="btn-hud" title="Toggle Telemetry Overlay (H)">
+                    <span>👁</span>
+                    <span>TOGGLE HUD</span>
+                </button>
+                <button class="btn-telemetry" id="btn-settings" title="Adjust Simulation Parameters">
+                    <span>⚙</span>
+                    <span>SETTINGS</span>
+                </button>
+                <button class="btn-telemetry" id="btn-fullscreen" title="Toggle Fullscreen (F)">
+                    <span>⛶</span>
+                </button>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Singularity Breakdown Modal -->
+    <div id="singularity-modal">
+        <h2>SINGULARITY REACHED</h2>
+        <p>Observer has breached the Schwarzschild event horizon. Spacetime coordinates have collapsed into a point of infinite gravitational density.</p>
+        <button class="btn-telemetry primary interactive" id="btn-reenter">
+            <span>RE-EMERGE INTO STABLE ORBIT</span>
+        </button>
+    </div>
+
+    <!-- Simulation Settings Drawer -->
+    <aside id="settings-drawer" class="interactive">
+        <div class="drawer-header">
+            <h3>SIMULATION PARAMETERS</h3>
+            <button class="close-btn" id="btn-close-settings">✕</button>
+        </div>
+        <div class="control-group">
+            <div class="control-label-row">
+                <span>Accretion Disk Intensity</span>
+                <span id="label-disk">1.0x</span>
+            </div>
+            <input type="range" id="slider-disk" min="0.0" max="2.5" step="0.05" value="1.0">
+        </div>
+        <div class="control-group">
+            <div class="control-label-row">
+                <span>Gravitational Lensing</span>
+                <span id="label-lensing">1.0x</span>
+            </div>
+            <input type="range" id="slider-lensing" min="0.0" max="2.0" step="0.05" value="1.0">
+        </div>
+        <div class="control-group">
+            <div class="control-label-row">
+                <span>Infall Acceleration</span>
+                <span id="label-speed">1.25x</span>
+            </div>
+            <input type="range" id="slider-speed" min="0.5" max="3.0" step="0.25" value="1.25">
+        </div>
+        <div class="control-group">
+            <div class="control-label-row">
+                <span>Camera Field of View</span>
+                <span id="label-fov">68°</span>
+            </div>
+            <input type="range" id="slider-fov" min="45" max="95" step="1" value="68">
+        </div>
+    </aside>
+
+    <!-- Application Module Entry Point -->
+    <script type="module" src="js/app.js"></script>
+</body>
+</html>

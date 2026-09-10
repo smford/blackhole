@@ -1,0 +1,20 @@
+{
+  "name": "blackhole-simulation",
+  "version": "1.0.0",
+  "description": "Authentic Schwarzschild Black Hole and Relativistic Infall Simulation using WebGL 2.0.",
+  "type": "module",
+  "scripts": {
+    "start": "python3 -m http.server 3000",
+    "serve": "npx serve -l 3000 ."
+  },
+  "keywords": [
+    "blackhole",
+    "general-relativity",
+    "schwarzschild",
+    "webgl",
+    "raymarching",
+    "simulation"
+  ],
+  "author": "",
+  "license": "MIT"
+}
